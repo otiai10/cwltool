@@ -1,3 +1,2 @@
-FROM debian:8
-RUN apt-get update && apt-get install -qq nodejs
-ADD node-expr-engine/cwlNodeEngine.js /usr/local/bin/
+FROM node:26.13.1-bookworm-slim
+COPY cwltool/cwlNodeEngine.js /usr/local/bin/
