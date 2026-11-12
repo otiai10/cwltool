@@ -23,7 +23,7 @@ localdata = threading.local()
 
 have_node_slim = False
 # minimum acceptable version of nodejs engine
-minimum_node_version_str = '0.10.26'
+minimum_node_version_str = '26.13.1'
 
 def check_js_threshold_version(working_alias):
     # type: (str) -> bool
@@ -59,12 +59,14 @@ def new_js_proc():
             if subprocess.check_output([n, "--eval", "process.stdout.write('t')"]) != "t":
                 continue
             else:
+                required_node_version = check_js_threshold_version(n)
+                if not required_node_version:
+                    continue
                 nodejs = subprocess.Popen([n, "--eval", nodecode],
                                           stdin=subprocess.PIPE,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE)
 
-                required_node_version = check_js_threshold_version(n)
                 break
         except subprocess.CalledProcessError:
             pass
@@ -76,7 +78,7 @@ def new_js_proc():
 
     if nodejs is None or nodejs is not None and required_node_version is False:
         try:
-            nodeimg = "node:slim"
+            nodeimg = "node:26.13.1-bookworm-slim"
             global have_node_slim
             if not have_node_slim:
                 dockerimgs = subprocess.check_output(["docker", "images", nodeimg])
@@ -103,7 +105,7 @@ def new_js_proc():
         raise JavascriptException(
             u"cwltool requires Node.js engine to evaluate Javascript "
             "expressions, but couldn't find it.  Tried %s, docker run "
-            "node:slim" % u", ".join(trynodes))
+            "node:26.13.1-bookworm-slim" % u", ".join(trynodes))
 
     # docker failed, but nodejs is installed on system but the version is below the required version
     if docker is False and required_node_version is False:
